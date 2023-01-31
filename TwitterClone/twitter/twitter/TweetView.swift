@@ -8,28 +8,17 @@
 import SwiftUI
 
 struct TweetView: View {
-    var name: String
-    var uName: String
-    var tweet: String
+    let tweet: Tweet
+    
     var body: some View {
         HStack (alignment: .top, spacing: 1) {
-            ProfilePictureView()
+            ProfilePictureView(profilePictureName: tweet.author.profilePicture)
                 .frame(width: 80)
-            VStack (alignment: .leading, spacing: 2){
-                HStack (alignment: .bottom, spacing: 5){
-                    Text(name)
-                        .font(.subheadline).bold()
-                        .foregroundColor(.white)
-                    Image(systemName: "moon.stars.fill")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 20)
-                        .foregroundColor(.white)
-                }
-                
-                Text(uName)
+            VStack (alignment: .leading, spacing: 2) {
+                authorNameHeader
+                Text(tweet.author.displayUserName)
                     .foregroundColor(.gray)
-                Text(tweet)
+                Text(tweet.tweet)
                     .foregroundColor(.white)
                     .multilineTextAlignment(.leading)
                 
@@ -38,11 +27,24 @@ struct TweetView: View {
             Spacer()
         }
     }
+    
+    private var authorNameHeader: some View {
+        HStack (alignment: .bottom, spacing: 5) {
+            Text(tweet.author.name)
+                .font(.subheadline).bold()
+                .foregroundColor(.white)
+            Image(systemName: "moon.stars.fill")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 20)
+                .foregroundColor(.white)
+        }
+    }
 }
 
 struct TweetView_Previews: PreviewProvider {
     static var previews: some View {
-        TweetView(name: "Name", uName: "uName", tweet: "O")
+        TweetView(tweet: .init(author: .init(name: "Kacper", username: "kacper", profilePicture: "Avatar"), tweet: "O"))
             .preferredColorScheme(.dark)
     }
 }

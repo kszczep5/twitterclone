@@ -8,61 +8,37 @@
 import SwiftUI
 
 struct UserProfileView: View {
-    @EnvironmentObject private var model: Model
+    @EnvironmentObject private var model: TwitterModel
     @Binding var rotationAngle: Double
     @State private var name: String = "Kacper"
-    @State private var uName: String = "@kacper"
+    @State private var username: String = "kacper"
+    @State private var profilePicture: String = "Avatar"
     @State private var showingAlert = false
-    @State private var isEditing = false
+    @State private var isDisabled = true
+    
     var body: some View {
         ZStack {
             VStack (alignment: .leading) {
                 RoundedRectangle(cornerRadius: 50)
                     .fill(LinearGradient(colors: [.purple, .black], startPoint: .top, endPoint: .bottom))
-                
-                Spacer()
             }
             .ignoresSafeArea()
             VStack {
                 Button {
+                    changeProfilePicture()
                 } label: {
-                    ProfilePictureView()
-                        .frame(width: 300)
-                        .padding(.top, 20)
+                    ProfilePictureView(profilePictureName: profilePicture)
                 }
-                TextField(
-                    " ",
-                    text: $name,
-                    axis: .vertical
-                )
-                .disabled(!isEditing)
-                .textInputAutocapitalization(.sentences)
-                .disableAutocorrection(true)
-                .multilineTextAlignment(.center)
-                .font(.system(size: 50)).bold()
-                .foregroundColor(.white)
+                .frame(width: 350, height: 260)
+                .padding(.top, 5)
+                UserTextField(name: $name, defaultText: "", size: 50, isDisabled: isDisabled, color: .white, textAlignment: .center)
                 
-                TextField(
-                    " ",
-                    text: $uName,
-                    axis: .vertical
-                )
-                .disabled(!isEditing)
-                .textInputAutocapitalization(.never)
-                .disableAutocorrection(true)
-                .multilineTextAlignment(.center)
-                .font(.system(size: 30))
-                .foregroundColor(.gray)
+                UserTextField(name: $username, defaultText: "", size: 30, isDisabled: isDisabled, color: .gray, textAlignment: .center)
                 Spacer()
                 Button {
-                    model.tempName = name
-                    model.tempUName = uName
-                    name = model.name
-                    uName = model.uName
-                    rotationAngle += 360
-                    isEditing.toggle()
+                    updateUser()
                 } label: {
-                    Text(isEditing ? "Save" : "Edit")
+                    Text(isDisabled ? "Edit" : "Save")
                         .foregroundColor(.white)
                         .font(.subheadline.bold())
                 }
@@ -73,7 +49,7 @@ struct UserProfileView: View {
                 .padding(.bottom, 100)
             }
         }
-        .alert(isPresented: $model.alert) {
+        .alert(isPresented: $showingAlert) {
             Alert(
                 title: Text("Warning"),
                 message: Text("Wrong name/username format"),
@@ -81,12 +57,45 @@ struct UserProfileView: View {
             )
         }
     }
+    
+    private func updateUser() {
+        name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        username = username.replacingOccurrences(of: " ", with: "")
+        if canUpdateUser {
+            model.currentUser = User(name: name, username: username, profilePicture: profilePicture)
+            rotationAngle += 360
+            isDisabled.toggle()
+        } else {
+            resetUserFields()
+            showingAlert.toggle()
+        }
+    }
+    
+    private var canUpdateUser: Bool {
+        name.count < 16 && name.count > 0 && username.count < 16 && username.count > 0
+    }
+    
+    private func resetUserFields() {
+        name = model.currentUser.name
+        username = model.currentUser.username
+    }
+    
+    private func changeProfilePicture() {
+        if (profilePicture == "Avatar") {
+            profilePicture = "Avatar1"
+        } else if (profilePicture == "Avatar1") {
+            profilePicture = "Avatar"
+        }
+        model.currentUser = User(name: name, username: username, profilePicture: profilePicture)
+    }
 }
+
+
 
 struct UserProfileView_Previews: PreviewProvider {
     static var previews: some View {
         UserProfileView(rotationAngle: .constant(0))
             .preferredColorScheme(.dark)
-            .environmentObject(Model())
+            .environmentObject(TwitterModel.testData)
     }
 }

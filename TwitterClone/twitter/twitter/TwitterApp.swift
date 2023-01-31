@@ -9,12 +9,14 @@ import SwiftUI
 
 @main
 struct TwitterApp: App {
+    @StateObject private var model = TwitterModel.testData
     var body: some Scene {
         WindowGroup {
             NavigationView {
                 ContentView()
             }
-            
+            .environmentObject(model)
+            .preferredColorScheme(.dark)
         }
     }
 }

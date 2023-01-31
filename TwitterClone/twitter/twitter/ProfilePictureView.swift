@@ -8,8 +8,9 @@
 import SwiftUI
 
 struct ProfilePictureView: View {
+    var profilePictureName: String
     var body: some View {
-        Image("Avatar")
+        Image(profilePictureName)
             .resizable()
             .scaledToFit()
             .clipShape(Circle())
@@ -18,6 +19,6 @@ struct ProfilePictureView: View {
 
 struct ProfilePictureView_Previews: PreviewProvider {
     static var previews: some View {
-        ProfilePictureView()
+        ProfilePictureView(profilePictureName: "Avatar")
     }
 }
